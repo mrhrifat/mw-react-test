@@ -36,9 +36,6 @@ const Problem2 = () => {
     }
 
 
-    console.log(searchParams)
-
-
     useEffect(() => {
         if (searchParams !== undefined) {
 
@@ -53,7 +50,6 @@ const Problem2 = () => {
 
     }, [searchParams])
 
-    console.log(data)
 
     return (
 
