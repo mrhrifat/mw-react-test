@@ -1,7 +1,7 @@
 import React from 'react'
 import { Form, Modal } from 'react-bootstrap'
 
-const FirstModal = ({ modalState, data, config, setConfig, dispatch, handleModalShowOne, handleModalCloseOne }) => {
+const FirstModal = ({ modalState, data, config, setConfig, dispatch, handleModalShowOne, handleModalCloseOne, }, ref) => {
 
     return (
         <Modal show={modalState.showModal1} size="lg" centered scrollable>
@@ -10,7 +10,7 @@ const FirstModal = ({ modalState, data, config, setConfig, dispatch, handleModal
                 <button className={`btn btn-lg modalBtnB`} type="button" onClick={(e) => handleModalShowOne(e)} >US Contacts</button>
                 <button className={`btn btn-lg modalBtnC`} type="button" onClick={() => handleModalCloseOne()}>Close</button>
             </Modal.Header>
-            <Modal.Body>
+            <Modal.Body ref={ref}>
                 <table className="table table-striped ">
                     <thead>
                         <tr>
@@ -47,4 +47,6 @@ const FirstModal = ({ modalState, data, config, setConfig, dispatch, handleModal
     )
 }
 
-export default FirstModal
+const forwardedFirstModal = React.forwardRef(FirstModal)
+
+export default forwardedFirstModal
