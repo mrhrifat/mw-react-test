@@ -24,7 +24,7 @@ const Problem2 = () => {
 
     const [modalState, dispatch] = useReducer(reducer, initialState)
     const [dataToFetch, setDataToFetch] = useState();
-    const [config, setConfig] = useState({ checkbox: false, prev: null, next: null })
+    const [config, setConfig] = useState({ checkbox: false, page: 1, loading: false })
     const [data, setData] = useState()
     const location = useLocation();
     const navigate = useNavigate()
@@ -50,19 +50,24 @@ const Problem2 = () => {
         dispatch({ type: 'showModalOne', value: false })
     }
 
-    useEffect(() => {
+    const fetchData = () => {
         if (dataToFetch !== undefined) {
-
-            fetch(`https://contact.mediusware.com/api/${dataToFetch === 'all-contacts' ? 'contacts' : 'country-contacts/United%20States'}/`)
+            fetch(`${import.meta.env.VITE_BASE_URL}${dataToFetch === 'all-contacts' ? 'contacts' : 'country-contacts/United%20States'}/?page=${config.page}`)
                 .then(res => {
                     return res.json()
                 })
                 .then(data => {
                     setData(data?.results)
-                }).catch(err => console.log(err))
+                })
+                .catch(err => console.log(err))
         }
+    }
+
+    useEffect(() => {
+        fetchData()
 
     }, [dataToFetch])
+
 
     return (
 
