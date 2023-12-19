@@ -12,6 +12,7 @@
     "bootstrap": "^5.2.0",
     "node-sass": "^7.0.1",
     "react": "^18.2.0",
+    "react-bootstrap": "^2.9.1",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.3.0"
   },
