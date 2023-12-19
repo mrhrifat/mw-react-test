@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
 import { NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import FirstModal from './FirstModal';
@@ -27,12 +27,13 @@ const Problem2 = () => {
 
     const [modalState, dispatch] = useReducer(reducer, initialState)
     const [dataToFetch, setDataToFetch] = useState();
-    const [config, setConfig] = useState({ checkbox: false, page: 1, loading: false })
-    const [data, setData] = useState()
+    const [checkbox, setCheckbox] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
+    const [page, setPage] = useState(1)
+    const [data, setData] = useState([])
     const location = useLocation();
     const navigate = useNavigate()
     const modalBodyRef = useRef(null);
-
 
     // Handle modal show one either with All Contacts or US 
     const handleModalShowOne = (e) => {
@@ -56,68 +57,67 @@ const Problem2 = () => {
     }
 
 
-    // Fetch data initial
-    const fetchDataInit = () => {
-        setConfig({ ...config, loading: true })
-        if (dataToFetch !== undefined) {
-            fetch(`${import.meta.env.VITE_BASE_URL}${dataToFetch === 'all-contacts' ? 'contacts' : 'country-contacts/United%20States'}/`)
-                .then(res => {
-                    return res.json()
-                })
-                .then(data => {
-                    setData(data?.results)
-                    if (data?.next !== null) setConfig({ ...config, page: config.page + 1 })
-
-                })
-                .catch(err => console.log(err))
-        }
-        setConfig({ ...config, loading: false })
-    }
-
 
     // Fetch data more
-    const fetchData = () => {
-        setConfig({ ...config, loading: true })
+    const fetchData = useCallback(async () => {
+        if (isLoading) return
+        setIsLoading(prevData => !prevData)
 
-        if (!config.loading) {
-            fetch(`${import.meta.env.VITE_BASE_URL}${dataToFetch === 'all-contacts' ? 'contacts' : 'country-contacts/United%20States'}/?page=${config.page}`)
-                .then((res) => res.json())
-                .then((data) => {
-                    setData((prevData) => [...prevData, ...data?.results]);
-                    if (data?.next !== null) {
-                        setConfig((prevConfig) => ({ ...prevConfig, page: prevConfig.page + 1 }));
-                    }
-                })
-                .catch((err) => console.log(err))
-                .finally(() => {
-                    setConfig((prevConfig) => ({ ...prevConfig, loading: false }));
-                });
-        }
-    }
+        await fetch(`${import.meta.env.VITE_BASE_URL}${dataToFetch === 'all-contacts' ? 'contacts' : 'country-contacts/United%20States'}/?page=${page}`)
+            .then((res) => res.json())
+            .then((data) => {
+                setData((prevData) => [...prevData, ...data?.results]);
+            })
+            .catch((err) => console.log(err))
+        console.log({ page })
+        setPage((prevPage) => prevPage + 1)
+        setIsLoading(prevData => !prevData)
 
 
-    // Handle modal body scroll
-    const handleScroll = () => {
-        const { scrollTop, scrollHeight, clientHeight } = modalBodyRef.current;
+    }, [isLoading, page])
 
-        if (scrollHeight - scrollTop === clientHeight && !config.loading) {
-            // User has scrolled to the bottom
-            console.log('Finished')
-            fetchData(); // Fetch more data
-        }
-    };
 
 
     useEffect(() => {
-        fetchDataInit()
+        const observer = new IntersectionObserver((entries) => {
+            const target = entries[0];
+            if (target.isIntersecting) {
+                fetchData();
+            }
+        });
 
-        const modalBody = modalBodyRef?.current;
-        modalBody?.addEventListener('scroll', handleScroll);
+        if (modalBodyRef?.current) {
+            observer.observe(modalBodyRef.current);
+        }
+
         return () => {
-            modalBody?.removeEventListener('scroll', handleScroll);
+            if (modalBodyRef?.current) {
+                observer.unobserve(modalBodyRef.current);
+            }
         };
+    }, [dataToFetch, fetchData])
+
+
+    useEffect(() => {
+        const getData = async () => {
+            setIsLoading(prevData => !prevData)
+
+            if (dataToFetch !== undefined) {
+                await fetch(`${import.meta.env.VITE_BASE_URL}${dataToFetch === 'all-contacts' ? 'contacts' : 'country-contacts/United%20States'}/?page=1`)
+                    .then(res => {
+                        return res.json()
+                    })
+                    .then(data => {
+                        setData(data?.results)
+                    })
+                    .catch(err => console.log(err))
+            }
+            setIsLoading(prevData => !prevData)
+        }
+        getData()
     }, [dataToFetch])
 
+    console.log(page)
     return (
 
         <div className="container">
@@ -129,7 +129,7 @@ const Problem2 = () => {
                     <button className="btn btn-lg btn-outline-warning" type="button" onClick={(e) => handleModalShowOne(e)}>US Contacts</button>
                 </div>
 
-                <FirstModal modalState={modalState} data={data} config={config} setConfig={setConfig} dispatch={dispatch} handleModalShowOne={handleModalShowOne} handleModalCloseOne={handleModalCloseOne} ref={modalBodyRef} />
+                <FirstModal modalState={modalState} data={data} checkbox={checkbox} setCheckbox={setCheckbox} isLoading={isLoading} setIsLoading={setIsLoading} dispatch={dispatch} handleModalShowOne={handleModalShowOne} handleModalCloseOne={handleModalCloseOne} ref={modalBodyRef} />
 
 
                 <Modal show={modalState.showModal2} size="md" centered>

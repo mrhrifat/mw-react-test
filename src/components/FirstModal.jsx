@@ -1,7 +1,7 @@
 import React from 'react'
 import { Form, Modal } from 'react-bootstrap'
 
-const FirstModal = ({ modalState, data, config, setConfig, dispatch, handleModalShowOne, handleModalCloseOne, }, ref) => {
+const FirstModal = ({ modalState, data, isLoading, checkbox, setCheckbox, dispatch, handleModalShowOne, handleModalCloseOne, }, ref) => {
 
     return (
         <Modal show={modalState.showModal1} size="lg" centered scrollable>
@@ -10,7 +10,7 @@ const FirstModal = ({ modalState, data, config, setConfig, dispatch, handleModal
                 <button className={`btn btn-lg modalBtnB`} type="button" onClick={(e) => handleModalShowOne(e)} >US Contacts</button>
                 <button className={`btn btn-lg modalBtnC`} type="button" onClick={() => handleModalCloseOne()}>Close</button>
             </Modal.Header>
-            <Modal.Body ref={ref}>
+            <Modal.Body >
                 <table className="table table-striped ">
                     <thead>
                         <tr>
@@ -19,28 +19,36 @@ const FirstModal = ({ modalState, data, config, setConfig, dispatch, handleModal
                         </tr>
                     </thead>
                     <tbody>
-                        {data === undefined ?
-                            <tr key='0'>
-                                <td>Loading...</td>
-                                <td>Loading...</td>
-                            </tr> :
-                            data?.filter(item => config.checkbox === true ? item.id % 2 === 0 : item).map(item => (
-                                <tr key={item.id} onClick={() => dispatch({ type: 'showModalTwo', value: true })}>
-                                    <td>{item?.phone}</td>
-                                    <td>{item?.country?.name}</td>
-                                </tr>
-                            ))
+                        {data?.filter(item => checkbox === true ? item.id % 2 === 0 : item).map(item => (
+                            <tr key={item.id} onClick={() => dispatch({ type: 'showModalTwo', value: true })}>
+                                <td>{item?.phone}</td>
+                                <td>{item?.country?.name}</td>
+                            </tr>
+                        ))
                         }
+
+                        <tr key='0' ref={ref}>
+
+                            {isLoading &&
+                                <>
+                                    <td>Loading...</td>
+                                    <td>Loading...</td>
+                                </>
+                            }
+                        </tr>
+
+
                     </tbody>
                 </table>
+
             </Modal.Body>
             <Modal.Footer className='d-flex justify-content-start'>
                 <Form.Check
                     type='checkbox'
                     id='0'
                     label='Show Even'
-                    value={config.checkbox}
-                    onChange={() => setConfig({ ...config, checkbox: !config.checkbox })}
+                    value={checkbox}
+                    onChange={(prevData) => setCheckbox(!prevData)}
                 />
             </Modal.Footer>
         </Modal>
