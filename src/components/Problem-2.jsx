@@ -1,10 +1,13 @@
-import React, { useEffect, useReducer, useState } from 'react';
+import React, { useEffect, useMemo, useReducer, useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
-import { useSearchParams } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import FirstModal from './FirstModal';
 
 const initialState = {
     showModal1: false, showModal2: false
 }
+
+export const stringReplaceSpaceWithDash = (str) => str.replace(' ', '-').toLowerCase()
 
 const reducer = (state, action) => {
     switch (action.type) {
@@ -20,26 +23,37 @@ const reducer = (state, action) => {
 const Problem2 = () => {
 
     const [modalState, dispatch] = useReducer(reducer, initialState)
-    const [searchParams, setSearchParams] = useState();
-    const [data, setData] = useState()
+    const [dataToFetch, setDataToFetch] = useState();
     const [config, setConfig] = useState({ checkbox: false, prev: null, next: null })
+    const [data, setData] = useState()
+    const location = useLocation();
+    const navigate = useNavigate()
+
+
 
     const handleModalShowOne = (e) => {
         const { textContent } = e.target
-        setSearchParams(textContent)
+        setDataToFetch(stringReplaceSpaceWithDash(textContent))
+
+        if (location.pathname === '/') {
+            navigate(location.pathname + '/' + stringReplaceSpaceWithDash(textContent))
+        } else {
+            navigate(stringReplaceSpaceWithDash(textContent))
+        }
+
         dispatch({ type: 'showModalOne', value: true })
 
     }
 
     const handleModalCloseOne = () => {
+        navigate('/problem-2')
         dispatch({ type: 'showModalOne', value: false })
     }
 
-
     useEffect(() => {
-        if (searchParams !== undefined) {
+        if (dataToFetch !== undefined) {
 
-            fetch(`https://contact.mediusware.com/api/${searchParams === 'All Contacts' ? 'contacts' : 'country-contacts/United%20States'}/`)
+            fetch(`https://contact.mediusware.com/api/${dataToFetch === 'all-contacts' ? 'contacts' : 'country-contacts/United%20States'}/`)
                 .then(res => {
                     return res.json()
                 })
@@ -48,8 +62,7 @@ const Problem2 = () => {
                 }).catch(err => console.log(err))
         }
 
-    }, [searchParams])
-
+    }, [dataToFetch])
 
     return (
 
@@ -62,47 +75,8 @@ const Problem2 = () => {
                     <button className="btn btn-lg btn-outline-warning" type="button" onClick={(e) => handleModalShowOne(e)}>US Contacts</button>
                 </div>
 
+                <FirstModal modalState={modalState} data={data} config={config} setConfig={setConfig} dispatch={dispatch} handleModalShowOne={handleModalShowOne} handleModalCloseOne={handleModalCloseOne} />
 
-                <Modal show={modalState.showModal1} size="lg" centered scrollable>
-                    <Modal.Header>
-                        <button className={`btn btn-lg modalBtnA`} type="button" onClick={(e) => handleModalShowOne(e)}>All Contacts</button>
-                        <button className={`btn btn-lg modalBtnB`} type="button" onClick={(e) => handleModalShowOne(e)} >US Contacts</button>
-                        <button className={`btn btn-lg modalBtnC`} type="button" onClick={() => handleModalCloseOne()}>Close</button>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <table className="table table-striped ">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Phone</th>
-                                    <th scope="col">Country</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {data === undefined ?
-                                    <tr key='0'>
-                                        <td>Loading...</td>
-                                        <td>Loading...</td>
-                                    </tr> :
-                                    data?.filter(item => config.checkbox === true ? item.id % 2 === 0 : item).map(item => (
-                                        <tr key={item.id} onClick={() => dispatch({ type: 'showModalTwo', value: true })}>
-                                            <td>{item?.phone}</td>
-                                            <td>{item?.country?.name}</td>
-                                        </tr>
-                                    ))
-                                }
-                            </tbody>
-                        </table>
-                    </Modal.Body>
-                    <Modal.Footer className='d-flex justify-content-start'>
-                        <Form.Check
-                            type='checkbox'
-                            id='0'
-                            label='Show Even'
-                            value={config.checkbox}
-                            onChange={() => setConfig({ ...config, checkbox: true })}
-                        />
-                    </Modal.Footer>
-                </Modal>
 
                 <Modal show={modalState.showModal2} size="md" centered>
                     <Modal.Header>
