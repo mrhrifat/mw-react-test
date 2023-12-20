@@ -40,6 +40,10 @@ const Problem2 = () => {
         const { textContent } = e.target
         setDataToFetch(stringReplaceSpaceWithDash(textContent))
 
+        if (location.pathname !== '/' && page !== 2) {
+            setPage(2)
+        }
+
         if (location.pathname === '/') {
             navigate(location.pathname + '/' + stringReplaceSpaceWithDash(textContent))
         } else {
@@ -68,10 +72,15 @@ const Problem2 = () => {
             .then((res) => res.json())
             .then((data) => {
                 setData((prevData) => [...prevData, ...data?.results]);
+                if (data?.next) {
+                    setPage((prevPage) => prevPage + 1)
+                } else {
+                    setIsLoading(prevData => !prevData)
+                }
+
             })
             .catch((err) => console.log(err))
 
-        setPage((prevPage) => prevPage + 1)
         setIsLoading(prevData => !prevData)
 
 
@@ -118,7 +127,6 @@ const Problem2 = () => {
         }
         getData()
     }, [dataToFetch])
-
 
     return (
 
