@@ -2,7 +2,7 @@ import React from 'react'
 import { Form, Modal } from 'react-bootstrap'
 
 const FirstModal = ({ modalState, data, isLoading, checkbox, setCheckbox, dispatch, handleModalShowOne, handleModalCloseOne, }, ref) => {
-    console.log(checkbox)
+
     return (
         <Modal show={modalState.showModal1} size="lg" centered scrollable>
             <Modal.Header>
