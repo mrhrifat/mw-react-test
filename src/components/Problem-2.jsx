@@ -29,7 +29,7 @@ const Problem2 = () => {
     const [dataToFetch, setDataToFetch] = useState();
     const [checkbox, setCheckbox] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
-    const [page, setPage] = useState(1)
+    const [page, setPage] = useState(2)
     const [data, setData] = useState([])
     const location = useLocation();
     const navigate = useNavigate()
@@ -60,6 +60,7 @@ const Problem2 = () => {
 
     // Fetch data more
     const fetchData = useCallback(async () => {
+
         if (isLoading) return
         setIsLoading(prevData => !prevData)
 
@@ -69,7 +70,7 @@ const Problem2 = () => {
                 setData((prevData) => [...prevData, ...data?.results]);
             })
             .catch((err) => console.log(err))
-        console.log({ page })
+
         setPage((prevPage) => prevPage + 1)
         setIsLoading(prevData => !prevData)
 
@@ -117,7 +118,7 @@ const Problem2 = () => {
         getData()
     }, [dataToFetch])
 
-    console.log(page)
+
     return (
 
         <div className="container">
