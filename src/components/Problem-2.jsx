@@ -78,7 +78,7 @@ const Problem2 = () => {
     }, [isLoading, page])
 
 
-
+    // Fetch data infinite with fetch data function whenever reac to the bottom
     useEffect(() => {
         const observer = new IntersectionObserver((entries) => {
             const target = entries[0];
@@ -99,6 +99,7 @@ const Problem2 = () => {
     }, [dataToFetch, fetchData])
 
 
+    // Fetch data for first time
     useEffect(() => {
         const getData = async () => {
             setIsLoading(prevData => !prevData)
