@@ -7,10 +7,12 @@ const Problem1 = () => {
     const [inputData, setInputData] = useState({ name: '', status: '' })
     const [currentData, setCurrentData] = useState(problem1Data)
 
+    // Set status
     const handleClick = (val) => {
         setShow(val);
     }
 
+    // Order with status of item
     const status = {
         'active': 1,
         'completed': 2,
@@ -19,6 +21,7 @@ const Problem1 = () => {
 
     };
 
+    // Change form data of item & status
     const handleChange = (e) => {
         const { name } = e.target;
         if (name === 'name') {
